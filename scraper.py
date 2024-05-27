@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
+from config import NUM_LISTINGS
 from items import Apartment
 
 BASE_URL = "https://realtylink.org/en/properties~for-rent?uc=1"
@@ -27,7 +28,6 @@ class Scraper:
             "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
         )
-        self.options.binary_location = "C:/Program Files/Google/Chrome/Application/chrome.exe"
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=self.options)
 
     def get_all_rents(self) -> list:
@@ -38,17 +38,17 @@ class Scraper:
         )
         links = []
 
-        while len(links) < 60:
+        while len(links) < NUM_LISTINGS:
             apartments = self.driver.find_elements(By.CLASS_NAME, "property-thumbnail-item")
             for apartment in apartments:
                 link = apartment.find_element(By.TAG_NAME, "a").get_attribute("href")
                 links.append(link)
-                if len(links) >= 60:
+                if len(links) >= NUM_LISTINGS:
                     break
-            if len(links) < 60:
+            if len(links) < NUM_LISTINGS:
                 self.click_next_page()
 
-        return links[:60]
+        return links[:NUM_LISTINGS]
 
     def click_next_page(self) -> None:
         toggle = self.driver.find_element(By.CLASS_NAME, "pager")

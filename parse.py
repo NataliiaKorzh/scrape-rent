@@ -1,6 +1,7 @@
 import json
 from dataclasses import asdict
 
+from config import OUTPUT_FILENAME
 from scraper import Scraper
 from items import Apartment
 
@@ -24,4 +25,4 @@ def main(output_json_path: str) -> None:
 
 
 if __name__ == "__main__":
-    main("apartments.json")
+    main(OUTPUT_FILENAME)
