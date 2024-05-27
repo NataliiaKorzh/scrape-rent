@@ -67,61 +67,61 @@ class Scraper:
             return None
 
         try:
-            title = self.driver.find_element(By.CSS_SELECTOR, "h1 [data-id='PageTitle']").text
-        except NoSuchElementException:
-            title = ""
-
-        try:
             location = self.driver.find_element(By.CLASS_NAME, "pt-1").text
             region = ", ".join(location.split(", ")[2:])
             address = ", ".join(location.split(", ")[:2])
         except NoSuchElementException:
             location, region, address = "", "", ""
 
-        try:
-            description = self.driver.find_element(
-                By.CSS_SELECTOR, "div.grid_3 > div.row.description-row > div > div:nth-child(2)"
-            ).text
-        except NoSuchElementException:
-            description = ""
+        return Apartment(
+                link=url,
+                title=self.get_title(),
+                region=region,
+                address=address,
+                description=self.get_description(),
+                pictures=self.extract_pictures(),
+                date="published recently",
+                price=self.get_price(),
+                room_amount=self.get_room_amount(),
+                square=self.get_square(),
+            )
 
+    def get_title(self) -> str:
         try:
-            pictures = self.extract_pictures()
+            return self.driver.find_element(By.CSS_SELECTOR, "h1 [data-id='PageTitle']").text
         except NoSuchElementException:
-            pictures = ""
+            return ""
 
+    def get_price(self) -> int | str:
         try:
-            price = int(self.driver.find_element(
+            return int(self.driver.find_element(
                 By.CSS_SELECTOR, "div.row.property-tagline > div.d-none.d-sm-block.house-info > "
                                  "div > div.price-container > div.price.text-right > span:nth-child(6)"
             ).text.replace(",", "").replace("$", "").split()[0])
         except NoSuchElementException:
-            price = ""
+            return ""
 
+    def get_description(self) -> str:
         try:
-            room_amount = int(self.driver.find_element(
+            return self.driver.find_element(
+                By.CSS_SELECTOR, "div.grid_3 > div.row.description-row > div > div:nth-child(2)"
+            ).text
+        except NoSuchElementException:
+            return ""
+
+    def get_room_amount(self) -> int | str:
+        try:
+            return int(self.driver.find_element(
                 By.CSS_SELECTOR, "div.grid_3 > div.col-lg-12.description > div.row.teaser > div.col-lg-3.col-sm-6.cac"
             ).text.split()[0])
         except NoSuchElementException:
-            room_amount = ""
+            return ""
 
+    def get_square(self) -> int | str:
         try:
-            square = int(self.driver.find_element(By.CLASS_NAME, "carac-value").text.replace(",", "").split()[0])
+            return int(self.driver.find_element(By.CLASS_NAME, "carac-value").text.replace(",", "").split()[0])
         except NoSuchElementException:
-            square = ""
-
-        return Apartment(
-                link=url,
-                title=title,
-                region=region,
-                address=address,
-                description=description,
-                pictures=pictures,
-                date="published recently",
-                price=price,
-                room_amount=room_amount,
-                square=square,
-            )
+            return ""
 
     def extract_pictures(self) -> list:
         try:
